@@ -1,4 +1,4 @@
-# OSSBOM
+# OSSBOM
 
 This library manages the creations of SBOMs in our custom format, as well as conversion methods to create json dicts and CycloneDX SBOMs.
 

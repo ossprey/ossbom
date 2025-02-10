@@ -1,0 +1,12 @@
+#!/bin/bash
+# Run cp .githooks/pre-push .git/hooks/pre-push to install this hook
+
+# Run Poetry tests
+poetry run pytest
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+    echo "One or more tests failed. Push aborted."
+    exit 1
+fi
+
+echo "All tests passed. Proceeding with push."
