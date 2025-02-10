@@ -46,6 +46,7 @@ jobs:
         pull-requests: read
     with:
         working-directory: '.'
+        mode: pipevn
     secrets:
         OSSPREY_CICD_API_KEY: ${{ secrets.OSSPREY_API_KEY || '' }}
 
