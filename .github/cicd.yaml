@@ -47,7 +47,7 @@ jobs:
       with:
           working-directory: '.'
       secrets:
-          OSSPREY_CICD_API_KEY: ${{ secrets.OSSPREY_CICD_API_KEY || '' }}
+          OSSPREY_CICD_API_KEY: ${{ secrets.OSSPREY_API_KEY || '' }}
 
     notify_on_failure:
       needs: [scan_malware]
