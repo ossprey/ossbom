@@ -81,9 +81,9 @@ def create_example_cyclonedx_dict() -> Dict[str, Any]:
         "version": 1,
         "metadata": {},
         "components": [
-            {"name": "example-pkg", "version": "1.0.0", "type": "library"},
-            {"name": "dependency-pkg", "version": "2.3.4", "type": "library"},
-            {"name": "vulnerable-pkg", "version": "0.9.0", "type": "library"},
+            {"name": "example-pkg", "version": "1.0.0", "type": "library", "purl": "pkg:pypi/example-pkg@1.0.0"},
+            {"name": "dependency-pkg", "version": "2.3.4", "type": "library", "purl": "pkg:pypi/dependency-pkg@2.3.4"},
+            {"name": "vulnerable-pkg", "version": "0.9.0", "type": "library", "purl": "pkg:pypi/vulnerable-pkg@0.9.0"},
         ],
         "vulnerabilities": [
             {
@@ -105,7 +105,7 @@ def create_example_cyclonedx_object() -> Bom:
     bom = Bom()
 
     # Create components
-    example_component = Component(name="example-pkg", version="1.0.0", type=ComponentType.LIBRARY)
+    example_component = Component(name="example-pkg", version="1.0.0", type=ComponentType.LIBRARY, purl=PackageURL("pypi", "example-pkg", "1.0.0"))
     dependency_component = Component(name="dependency-pkg", version="2.3.4", type=ComponentType.LIBRARY)
     vulnerable_component = Component(name="vulnerable-pkg", version="0.9.0", type=ComponentType.LIBRARY)
 

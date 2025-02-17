@@ -14,7 +14,7 @@ classDiagram
         +datetime created
         +string creator // optional
         +string version
-        +string format // == OSSBOM
+        +string bomFormat // == OSSBOM
         +Environment env
         +List~Component~ components
         +List~Vulnerability~ vulnerabilities

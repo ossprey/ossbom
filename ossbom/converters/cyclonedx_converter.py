@@ -64,6 +64,7 @@ class CycloneDXConverter:
             source = set(next((prop.value for prop in component.properties if prop.name == "source"), "CycloneDx").split(','))
             env_values = next((prop.value for prop in component.properties if prop.name == "env"), None)
             env = set(DependencyEnv(e) for e in env_values.split(',')) if env_values else set()
+            type = component.purl.type if component.purl else component.type.value
 
             components.append(
                 OSSBOM_Component(
@@ -71,7 +72,7 @@ class CycloneDXConverter:
                     version=component.version,
                     source=source,
                     env=env,
-                    type=component.type.value,
+                    type=type
                 )
             )
 
@@ -121,7 +122,8 @@ class CycloneDXConverter:
                 Component(
                     name=component.name,
                     version=component.version,
-                    type=ComponentType(component.type),
+                    type=ComponentType.LIBRARY,
+                    purl=component.get_purl(),
                     properties=[
                         Property(name="source", value=source),
                         Property(name="env", value=env),
