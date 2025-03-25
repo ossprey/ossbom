@@ -6,15 +6,17 @@ class Environment(Serializable):
     def __init__(self,
                  github_repo: str = None,
                  github_org: str = None,
+                 project: str = None,
                  branch: str = None,
                  machine_name: str = None,
-                 product_env: str = None
+                 product_env: str = None,
                  ):
         self.github_repo = github_repo
         self.github_org = github_org
         self.branch = branch
         self.machine_name = machine_name
         self.product_env = product_env
+        self.project = project
 
     def to_dict(self) -> dict:
         """Convert Environment instance to a dictionary."""
@@ -23,7 +25,8 @@ class Environment(Serializable):
             "github_org": self.github_org,
             "branch": self.branch,
             "machine_name": self.machine_name,
-            "product_env": self.product_env
+            "product_env": self.product_env,
+            "project": self.project
         }
 
     @classmethod
@@ -34,7 +37,8 @@ class Environment(Serializable):
             github_org=data.get("github_org", None),
             branch=data.get("branch", None),
             machine_name=data.get("machine_name", None),
-            product_env=data.get("product_env", None)
+            product_env=data.get("product_env", None),
+            project=data.get("project", None)
         )
 
     @classmethod
@@ -42,9 +46,10 @@ class Environment(Serializable):
                github_repo: str = None,
                github_org: str = None,
                branch: str = None,
+               project: str = None,
                machine_name: str = None,
                product_env: str = None
                ) -> "Environment":
         """Create an Environment instance."""
 
-        return cls(github_repo, github_org, branch, machine_name, product_env)
+        return cls(github_repo, github_org, project, branch, machine_name, product_env)

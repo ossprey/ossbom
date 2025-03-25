@@ -33,6 +33,9 @@ class OSSBOM(Serializable):
     def create(cls, name: str, env: Environment, created: datetime, creators: List[str], version: str) -> "OSSBOM":
         return cls(name, env, created, creators, version)
 
+    def update_environemnt(self, env: Environment):
+        self.env = env
+
     def add_component(self, name, version, source, env=None, type="library"):
         key = Component.get_hash(name, version, type)
         if key in self.components:
