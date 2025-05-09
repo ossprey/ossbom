@@ -1,0 +1,85 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag version (e.g., v1.0.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate tag format
+        run: |
+          if [[ ! "${{ github.event.inputs.tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid tag format. Use semantic versioning (e.g., v1.0.0)."
+            exit 1
+          fi
+
+      - name: Validate tag matches pyproject.toml version
+        run: |
+          VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
+          EXPECTED_TAG="v$VERSION"
+          if [[ "$EXPECTED_TAG" != "${{ github.event.inputs.tag }}" ]]; then
+            echo "Tag does not match pyproject.toml version ($EXPECTED_TAG)"
+            exit 1
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install
+
+      - name: Run unit tests
+        run: |
+          poetry run pytest
+
+      - name: Tag and push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ github.event.inputs.tag }}
+          git push origin ${{ github.event.inputs.tag }}
+
+      - name: Build and Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TEST_TOKEN }}
+        run: |
+          poetry run task deploy
+
+
+  notify_on_failure:
+    needs: [release]
+    if: failure() && github.ref == 'refs/heads/main'  # Only triggers if previous steps fail and we are on the main branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Post to Slack on Failure
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN || '' }}
+        run: |
+            curl -X POST -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+              -H "Content-type: application/json" \
+              --data '{
+                "channel": "#alerts-github",
+                "text": "Pipeline Failed: ${{ github.workflow }} in ${{ github.repository }}: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Pipeline Run>"
+              }' https://slack.com/api/chat.postMessage

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ossbom"
-version = "1.0.0"
+version = "1.0.1"
 description = "Main public API"
 authors = ["dreadnought"]
 readme = "README.md"
@@ -14,6 +14,7 @@ packageurl-python = "^0.16.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
 taskipy = "^1.14.0"
+twine = "^6.1.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -24,3 +25,5 @@ max-line-length = 120  # or your preferred length
 
 [tool.taskipy.tasks]
 test = "poetry run pytest"
+deploy = "poetry build && twine upload dist/*"
+deploy-test = "poetry build && twine upload --repository-url https://test.pypi.org/legacy/ dist/*"
