@@ -51,12 +51,12 @@ jobs:
         run: |
           poetry run pytest
 
-      - name: Tag and push
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git tag ${{ github.event.inputs.tag }}
-          git push origin ${{ github.event.inputs.tag }}
+      #- name: Tag and push
+      #  run: |
+      #    git config --global user.name "github-actions[bot]"
+      #    git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #    git tag ${{ github.event.inputs.tag }}
+      #    git push origin ${{ github.event.inputs.tag }}
 
       - name: Build and Publish to PyPI
         env:
