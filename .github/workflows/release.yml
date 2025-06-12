@@ -64,7 +64,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
           poetry build
-          twine upload dist/*
+          poetry run twine upload dist/*
 
   notify_on_failure:
     needs: [release]
