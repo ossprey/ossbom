@@ -28,15 +28,6 @@ jobs:
             exit 1
           fi
 
-      - name: Validate tag matches pyproject.toml version
-        run: |
-          VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
-          EXPECTED_TAG="v$VERSION"
-          if [[ "$EXPECTED_TAG" != "${{ github.event.inputs.tag }}" ]]; then
-            echo "Tag does not match pyproject.toml version ($EXPECTED_TAG)"
-            exit 1
-          fi
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -57,18 +48,6 @@ jobs:
       #    git config --global user.email "github-actions[bot]@users.noreply.github.com"
       #    git tag ${{ github.event.inputs.tag }}
       #    git push origin ${{ github.event.inputs.tag }}
-      
-      - name: Bump version in pyproject.toml
-        run: |
-          VERSION="${{ github.event.inputs.tag }}"
-          VERSION="${VERSION#v}"
-          poetry version "$VERSION"
-
-      - name: Commit version bump
-        run: |
-          git add pyproject.toml
-          git commit -m "Bump version to $VERSION [skip ci]"
-          git push origin HEAD
 
       - name: Build and Publish to PyPI
         env:

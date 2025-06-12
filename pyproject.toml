@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ossbom"
-version = "1.0.1"
+version = "1.0.3"
 description = "Main public API"
 authors = ["dreadnought"]
 readme = "README.md"

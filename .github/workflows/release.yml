@@ -58,19 +58,6 @@ jobs:
           git tag ${{ github.event.inputs.tag }}
           git push origin ${{ github.event.inputs.tag }}
 
-      - name: Bump version in pyproject.toml
-        run: |
-          VERSION="${{ github.event.inputs.tag }}"
-          VERSION="${VERSION#v}"
-          poetry version "$VERSION"
-
-      - name: Commit version bump
-        run: |
-          git add pyproject.toml
-          git commit -m "Bump version to $VERSION [skip ci]"
-          git push origin HEAD
-
-
       - name: Build and Publish to PyPI
         env:
           TWINE_USERNAME: __token__
