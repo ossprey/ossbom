@@ -11,13 +11,15 @@ class Component(Serializable):
                  version: str,
                  source: Set[str] = set(),
                  env: Set[DependencyEnv] = set(),
-                 type: str = "library") -> None:
+                 type: str = "library",
+                 location: list = []) -> None:
 
         self.name = name
         self.version = version
         self.source = source
         self.env = env
         self.type = type
+        self.location = location
 
     @classmethod
     def create(cls,
@@ -25,7 +27,8 @@ class Component(Serializable):
                version: str,
                source: str = None,
                env: str = None,
-               type: str = "library"
+               type: str = "library",
+               location: list = []
                ):
 
         if source:
@@ -35,7 +38,7 @@ class Component(Serializable):
 
         if env:
             env = {DependencyEnv(env)}
-        return cls(name, version, source, env, type)
+        return cls(name, version, source, env, type, location)
 
     def __hash__(self):
         # Hash based on the name and version concatenated
@@ -68,7 +71,8 @@ class Component(Serializable):
             "version": self.version,
             "source": list(self.source) if self.source else [],
             "env": [t.value for t in self.env] if self.env else [],
-            "type": self.type
+            "type": self.type,
+            "location": self.location
         }
 
     @classmethod
@@ -78,8 +82,9 @@ class Component(Serializable):
         type = data.get("type", "library")
         env = set(DependencyEnv(e) for e in data.get('env', []))
         source = set(data.get('source', []))
+        location = data.get('location', [])
 
-        return Component(name, version, source, env, type)
+        return Component(name, version, source, env, type, location)
 
     @staticmethod
     def get_hash(name, version, type):
