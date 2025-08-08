@@ -81,7 +81,8 @@ def test_component_to_dict():
         "version": "1.0.0",
         "source": ["pypi"],
         "env": ["dev"],
-        "type": "library"
+        "type": "library",
+        "location": []
     }
 
     assert comp.to_dict() == expected_dict
