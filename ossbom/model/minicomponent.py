@@ -1,5 +1,5 @@
 from packageurl import PackageURL
-from typing import Set
+from typing import List, Set
 
 from .base import Serializable
 from .component import Component
@@ -10,7 +10,8 @@ class MiniComponent(Serializable):
     def __init__(self,
                  purl: PackageURL,
                  source: Set[str] = set(),
-                 env: Set[DependencyEnv] = set()
+                 env: Set[DependencyEnv] = set(),
+                 location: List[str] = []
                  ) -> None:
 
         self.name = purl.name
@@ -18,12 +19,14 @@ class MiniComponent(Serializable):
         self.source = source
         self.env = env
         self.type = purl.type
+        self.location = location
 
     @classmethod
     def create(cls,
                purl: PackageURL,
                source: str = None,
                env: str = None,
+               location: List[str] = None
                ) -> 'MiniComponent':
 
         if source:
@@ -31,9 +34,17 @@ class MiniComponent(Serializable):
         else:
             source = set()
 
+        if location:
+            location = location
+        else:
+            location = []
+
         if env:
             env = {DependencyEnv(env)}
-        return cls(purl, source, env)
+        else:
+            env = set()
+        
+        return cls(purl, source, env, location)
 
     def __hash__(self):
         # Hash based on the name and version concatenated
@@ -61,11 +72,15 @@ class MiniComponent(Serializable):
         return f"pkg:{self.type}/{self.name}@{self.version} Source:({', '.join([s for s in self.source])}) Env:({', '.join([t.value for t in self.env])})"
 
     def to_dict(self):
-        return {
+        data = {
             "purl": str(self.get_purl()),
             "source": list(self.source) if self.source else [],
             "env": [t.value for t in self.env] if self.env else [],
         }
+        # Only include location if it has data to avoid bloating minibom size
+        if self.location:
+            data["location"] = self.location
+        return data
 
     @classmethod
     def from_dict(cls, data):
@@ -74,8 +89,9 @@ class MiniComponent(Serializable):
 
         env = set(DependencyEnv(e) for e in data.get('env', []))
         source = set(data.get('source', []))
+        location = data.get('location', [])
 
-        return MiniComponent(purl, source, env)
+        return cls(purl, source, env, location)
 
     @staticmethod
     def get_hash(name, version, type):
