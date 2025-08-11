@@ -36,13 +36,14 @@ class OSSBOM(Serializable):
     def update_environment(self, env: Environment):
         self.env = env
 
-    def add_component(self, name, version, source, env=None, type="library"):
+    def add_component(self, name, version, source, env=None, type="library", location=[]):
         key = Component.get_hash(name, version, type)
         if key in self.components:
             self.components[key].add_source(source)
             self.components[key].add_env(env)
+            self.components[key].add_location(location)
         else:
-            self.components[key] = Component.create(name, version, source, env, type)
+            self.components[key] = Component.create(name, version, source, env, type, location)
 
     def add_components(self, components: List[Component]):
         for component in components:

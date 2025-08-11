@@ -59,6 +59,9 @@ class Component(Serializable):
     def get_type(self):
         return self.type
 
+    def add_location(self, location):
+        self.location.append(location)
+
     def get_purl(self):
         return PackageURL(name=self.name, version=self.version, type=self.type)
 

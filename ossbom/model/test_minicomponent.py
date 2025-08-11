@@ -1,3 +1,4 @@
+from ossbom.model.component import Component
 import pytest
 
 from packageurl import PackageURL
@@ -123,3 +124,16 @@ def test_get_hash():
     comp = MiniComponent.create(purl=PackageURL(name="example-pkg", version="1.0.0", type="pypi"), source="pypi", env=DependencyEnv.DEV)
 
     assert MiniComponent.get_hash("example-pkg", "1.0.0", "pypi") == hash(comp)
+
+
+def test_minicomponent_from_component():
+    """Test creating a MiniComponent from a Component."""
+    component = Component(name="example-pkg", version="1.0.0", type="pypi", source={"pypi"}, env={DependencyEnv.DEV}, location=["/tmp"])
+    mini_component = MiniComponent.from_component(component)
+
+    assert mini_component.name == component.name
+    assert mini_component.version == component.version
+    assert mini_component.type == component.type
+    assert mini_component.source == component.source
+    assert mini_component.env == component.env
+    assert mini_component.location == component.location

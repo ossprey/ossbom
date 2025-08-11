@@ -19,10 +19,11 @@ def create_example_component(
     version="1.0.0",
     source="pypi",
     env="dev",
-    type="library"
+    type="library",
+    location=["/tmp"]
 ):
     """Creates a test Package instance, optionally with vulnerabilities."""
-    package = OSSBOM_Component(name, version, source, env, type)
+    package = OSSBOM_Component(name, version, source, env, type, location)
     return package
 
 
@@ -50,7 +51,8 @@ def create_example_sbom():
         name="vulnerable-pkg",
         version="0.9.0",
         source="pypi",
-        env="dev"
+        env="dev",
+        location=["/tmp"]
     )
     sbom.add_component(package.name, package.version, package.source, package.env)
 

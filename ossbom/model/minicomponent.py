@@ -99,7 +99,7 @@ class MiniComponent(Serializable):
 
     @classmethod
     def from_component(cls, component):
-        return cls(PackageURL(name=component.name, version=component.version, type=component.type), component.source, component.env)
+        return cls(PackageURL(name=component.name, version=component.version, type=component.type), component.source, component.env, component.location)
 
     def to_component(self):
-        return Component(name=self.name, version=self.version, type=self.type, source=self.source, env=self.env)
+        return Component(name=self.name, version=self.version, type=self.type, source=self.source, env=self.env, location=self.location)
