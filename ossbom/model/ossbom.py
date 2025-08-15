@@ -52,7 +52,9 @@ class OSSBOM(Serializable):
                     self.components[hash(component)].add_source(source)
                 for env in component.env:
                     self.components[hash(component)].add_env(env)
-
+                # Component stores locations in `location` (singular). Iterate over it
+                for location in component.location:
+                    self.components[hash(component)].add_location(location)
             else:
                 self.components[hash(component)] = component
 

@@ -161,3 +161,40 @@ def test_can_be_converted_to_json():
     new_sbom = OSSBOM.from_dict(new_str)
 
     assert sbom == new_sbom
+
+
+def test_add_components_adds_and_merges():
+    """Test add_components merges sources/envs/locations for existing components and adds new ones."""
+    sbom = OSSBOM()
+
+    # Create a base component and add it via add_component
+    sbom.add_component(name="example-pkg", version="1.0.0", source="pypi", env="dev", location=["/src"])
+
+    # Create another Component instance with same name/version but different source/env/location
+    from .component import Component
+    from .dependency_env import DependencyEnv
+
+    comp_same = Component.create(name="example-pkg", version="1.0.0", source="npm", env=DependencyEnv.PROD, type="library", location=["/lib"])
+
+    # Create a completely new component
+    comp_new = Component.create(name="other-pkg", version="2.0.0", source="maven", env=DependencyEnv.DEV, type="library", location=["/opt"])
+
+    sbom.add_components([comp_same, comp_new])
+
+    components = sbom.get_components()
+    # Expect two components
+    assert len(components) == 2
+
+    # Find example-pkg and verify merged sources/env/location
+    example = next(c for c in components if c.name == "example-pkg")
+    assert example.source >= {"pypi", "npm"}
+    # env contains DependencyEnv members
+    assert DependencyEnv.DEV in example.env and DependencyEnv.PROD in example.env
+    # locations should include both entries
+    assert any("/src" in loc for loc in example.location) or "/src" in example.location
+    assert any("/lib" in loc for loc in example.location) or "/lib" in example.location
+
+    # Verify new component present
+    other = next(c for c in components if c.name == "other-pkg")
+    assert other.source == {"maven"}
+    assert DependencyEnv.DEV in other.env
