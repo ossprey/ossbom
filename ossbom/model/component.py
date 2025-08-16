@@ -9,7 +9,7 @@ class Component(Serializable):
     def __init__(self,
                  name: str,
                  version: str,
-                 source: Set[str] | None = None
+                 source: Set[str] | None = None,
                  env: Set[DependencyEnv] | None = None,
                  type: str = "library",
                  location: list | None = None) -> None:
