@@ -13,13 +13,13 @@ class OSSBOM(Serializable):
                  name: str = "",
                  env: Environment = None,
                  created: datetime = datetime.now(timezone.utc),
-                 creators: List[str] = [],
+                 creators: List[str] | None = None,
                  version: str = "1.0"
                  ):
 
         self.name = name
         self.created = created
-        self.creators = creators
+        self.creators = creators if creators else []
         self.version = version
         self.format = "OSSBOM"
         self.env = env

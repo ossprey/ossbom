@@ -9,40 +9,29 @@ from .dependency_env import DependencyEnv
 class MiniComponent(Serializable):
     def __init__(self,
                  purl: PackageURL,
-                 source: Set[str] = set(),
-                 env: Set[DependencyEnv] = set(),
-                 location: List[str] = []
+                 source: Set[str] | None = None,
+                 env: Set[DependencyEnv] | None = None,
+                 location: List[str] | None = None
                  ) -> None:
 
         self.name = purl.name
         self.version = purl.version
-        self.source = source
-        self.env = env
+        self.source = source if source else set()
+        self.env = env if env else set()
         self.type = purl.type
-        self.location = location
+        self.location = location if location else []
 
     @classmethod
     def create(cls,
                purl: PackageURL,
-               source: str = None,
-               env: str = None,
-               location: List[str] = None
+               source: str | None = None,
+               env: str | None = None,
+               location: List[str] | None = None
                ) -> 'MiniComponent':
 
-        if source:
-            source = {source}
-        else:
-            source = set()
-
-        if location:
-            location = location
-        else:
-            location = []
-
-        if env:
-            env = {DependencyEnv(env)}
-        else:
-            env = set()
+        source = {source} if source else set()
+        env = {DependencyEnv(env)} if env else set()
+        location = location if location else []
         
         return cls(purl, source, env, location)
 

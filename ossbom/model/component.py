@@ -9,35 +9,31 @@ class Component(Serializable):
     def __init__(self,
                  name: str,
                  version: str,
-                 source: Set[str] = set(),
-                 env: Set[DependencyEnv] = set(),
+                 source: Set[str] | None = None
+                 env: Set[DependencyEnv] | None = None,
                  type: str = "library",
-                 location: list = []) -> None:
+                 location: list | None = None) -> None:
 
         self.name = name
         self.version = version
-        self.source = source
-        self.env = env
+        self.source = source if source else set()
+        self.env = env if env else set()
         self.type = type
-        self.location = location
+        self.location = location if location else []
 
     @classmethod
     def create(cls,
                name: str,
                version: str,
-               source: str = None,
-               env: str = None,
+               source: str | None = None,
+               env: str | None = None,
                type: str = "library",
-               location: list = []
+               location: list | None = None
                ):
 
-        if source:
-            source = {source}
-        else:
-            source = set()
-
-        if env:
-            env = {DependencyEnv(env)}
+        source = {source} if source else set()
+        env = {DependencyEnv(env)} if env else set()
+        location = location if location else []
         return cls(name, version, source, env, type, location)
 
     def __hash__(self):
