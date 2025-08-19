@@ -12,7 +12,8 @@ class Component(Serializable):
                  source: Set[str] | None = None,
                  env: Set[DependencyEnv] | None = None,
                  type: str = "library",
-                 location: list | None = None) -> None:
+                 location: list | None = None,
+                 metadata: dict | None = None) -> None:
 
         self.name = name
         self.version = version
@@ -20,6 +21,7 @@ class Component(Serializable):
         self.env = env if env else set()
         self.type = type
         self.location = location if location else []
+        self.metadata = metadata if metadata else {}
 
     @classmethod
     def create(cls,
@@ -28,13 +30,16 @@ class Component(Serializable):
                source: str | None = None,
                env: str | None = None,
                type: str = "library",
-               location: list | None = None
+               location: list | None = None,
+               metadata: dict | None = None
                ):
 
         source = {source} if source else set()
         env = {DependencyEnv(env)} if env else set()
         location = location if location else []
-        return cls(name, version, source, env, type, location)
+        metadata = metadata if metadata else {}
+
+        return cls(name, version, source, env, type, location, metadata)
 
     def __hash__(self):
         # Hash based on the name and version concatenated
@@ -71,7 +76,8 @@ class Component(Serializable):
             "source": list(self.source) if self.source else [],
             "env": [t.value for t in self.env] if self.env else [],
             "type": self.type,
-            "location": self.location
+            "location": self.location,
+            "metadata": self.metadata
         }
 
     @classmethod
@@ -82,8 +88,9 @@ class Component(Serializable):
         env = set(DependencyEnv(e) for e in data.get('env', []))
         source = set(data.get('source', []))
         location = data.get('location', [])
+        metadata = data.get('metadata', {})
 
-        return Component(name, version, source, env, type, location)
+        return Component(name, version, source, env, type, location, metadata)
 
     @staticmethod
     def get_hash(name, version, type):

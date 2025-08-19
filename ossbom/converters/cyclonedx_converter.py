@@ -118,16 +118,20 @@ class CycloneDXConverter:
             source = ','.join(component.source)
             env = ','.join([e.value for e in component.env])
 
+            properties = [
+                Property(name="source", value=source),
+                Property(name="env", value=env),
+            ]
+            for key, value in component.metadata.items():
+                properties.append(Property(name=key, value=value))
+
             cdx_obj.components.add(
                 Component(
                     name=component.name,
                     version=component.version,
                     type=ComponentType.LIBRARY,
                     purl=component.get_purl(),
-                    properties=[
-                        Property(name="source", value=source),
-                        Property(name="env", value=env),
-                    ]
+                    properties=properties
                 )
             )
         

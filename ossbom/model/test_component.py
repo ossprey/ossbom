@@ -6,24 +6,38 @@ from .dependency_env import DependencyEnv
 
 def test_init_component():
     """Test creating a Component instance."""
-    comp = Component(name="example-pkg", version="1.0.0", source={"pypi"}, env={DependencyEnv.DEV})
+    comp = Component(
+        name="example-pkg",
+        version="1.0.0",
+        source={"pypi"},
+        env={DependencyEnv.DEV},
+        metadata={"license": "MIT", "homepage": "https://example.com"}
+    )
 
     assert comp.name == "example-pkg"
     assert comp.version == "1.0.0"
     assert comp.source == {"pypi"}  # Stored as a set
     assert comp.env == {DependencyEnv.DEV}
     assert comp.type == "library"
+    assert comp.metadata == {"license": "MIT", "homepage": "https://example.com"}
 
 
 def test_create_component():
     """Test creating a Component instance."""
-    comp = Component.create(name="example-pkg", version="1.0.0", source="pypi", env=DependencyEnv.DEV)
+    comp = Component.create(
+        name="example-pkg",
+        version="1.0.0",
+        source="pypi",
+        env=DependencyEnv.DEV,
+        metadata={"license": "MIT"}
+    )
 
     assert comp.name == "example-pkg"
     assert comp.version == "1.0.0"
     assert comp.source == {"pypi"}  # Stored as a set
     assert comp.env == {DependencyEnv.DEV}
     assert comp.type == "library"
+    assert comp.metadata == {"license": "MIT"}
 
 
 def test_component_hash():
@@ -82,10 +96,25 @@ def test_component_to_dict():
         "source": ["pypi"],
         "env": ["dev"],
         "type": "library",
-        "location": []
+        "location": [],
+        "metadata": {}
     }
 
     assert comp.to_dict() == expected_dict
+
+
+def test_component_to_dict_with_metadata():
+    """Test converting a Component with metadata to a dictionary."""
+    comp = Component.create(
+        name="example-pkg",
+        version="1.0.0",
+        source="pypi",
+        env=DependencyEnv.DEV,
+        metadata={"license": "MIT", "homepage": "https://example.com"}
+    )
+
+    d = comp.to_dict()
+    assert d["metadata"] == {"license": "MIT", "homepage": "https://example.com"}
 
 
 def test_component_from_dict():
@@ -105,6 +134,23 @@ def test_component_from_dict():
     assert comp.source == {"pypi"}
     assert comp.env == {DependencyEnv.DEV}
     assert comp.type == "library"
+    assert comp.metadata == {}
+
+
+def test_component_from_dict_with_metadata():
+    """Test creating a Component from a dictionary including metadata."""
+    data = {
+        "name": "example-pkg",
+        "version": "1.0.0",
+        "source": ["pypi"],
+        "env": ["dev"],
+        "type": "library",
+        "metadata": {"license": "MIT"}
+    }
+
+    comp = Component.from_dict(data)
+
+    assert comp.metadata == {"license": "MIT"}
 
 
 @pytest.mark.parametrize("data", [
