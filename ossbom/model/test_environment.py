@@ -8,7 +8,8 @@ def test_create_environment():
         github_org="example-org",
         branch="main",
         machine_name="server-1",
-        product_env="prod"
+        product_env="prod",
+        path="javascript/npm/"
     )
 
     assert env.github_repo == "example/repo"
@@ -16,6 +17,7 @@ def test_create_environment():
     assert env.branch == "main"
     assert env.machine_name == "server-1"
     assert env.product_env == "prod"
+    assert env.path == "javascript/npm/"
 
 
 def test_create_environment_classmethod():
@@ -25,7 +27,8 @@ def test_create_environment_classmethod():
         github_org="example-org",
         branch="develop",
         machine_name="server-2",
-        product_env="dev"
+        product_env="dev",
+        path="javascript/npm/"
     )
 
     assert env.github_repo == "example/repo"
@@ -33,6 +36,7 @@ def test_create_environment_classmethod():
     assert env.branch == "develop"
     assert env.machine_name == "server-2"
     assert env.product_env == "dev"
+    assert env.path == "javascript/npm/"
 
 
 def test_environment_to_dict():
@@ -42,7 +46,8 @@ def test_environment_to_dict():
         github_org="example-org",
         branch="feature",
         machine_name="server-3",
-        product_env="staging"
+        product_env="staging",
+        path="javascript/npm/"
     )
 
     env_dict = env.to_dict()
@@ -53,6 +58,7 @@ def test_environment_to_dict():
     assert env_dict["branch"] == "feature"
     assert env_dict["machine_name"] == "server-3"
     assert env_dict["product_env"] == "staging"
+    assert env_dict["path"] == "javascript/npm/"
 
 
 def test_environment_from_dict():
@@ -62,7 +68,8 @@ def test_environment_from_dict():
         "github_org": "example-org",
         "branch": "hotfix",
         "machine_name": "server-4",
-        "product_env": "prod"
+        "product_env": "prod",
+        "path": "javascript/npm/"
     }
 
     env = Environment.from_dict(data)
@@ -73,6 +80,7 @@ def test_environment_from_dict():
     assert env.branch == "hotfix"
     assert env.machine_name == "server-4"
     assert env.product_env == "prod"
+    assert env.path == "javascript/npm/"
 
 
 def test_environment_from_empty_dict():
@@ -84,6 +92,7 @@ def test_environment_from_empty_dict():
     assert env.branch is None
     assert env.machine_name is None
     assert env.product_env is None
+    assert env.path is None
 
 
 def test_environment_empty_fields():
@@ -95,3 +104,4 @@ def test_environment_empty_fields():
     assert env.branch is None
     assert env.machine_name is None
     assert env.product_env is None
+    assert env.path is None
