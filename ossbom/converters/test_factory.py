@@ -110,3 +110,40 @@ def test_massive_sbom():
 
     max_size = 400 * 1024
     assert (len(str(sbom_dict)) < max_size)
+
+
+def test_from_cyclonedx_dict_invalid_json_raises():
+    """Test that from_cyclonedx_dict raises an exception for invalid CycloneDX JSON."""
+    invalid_sbom = {"not": "a valid cyclonedx sbom"}
+
+    try:
+        SBOMConverterFactory.from_cyclonedx_dict(invalid_sbom)
+        assert False, "Expected exception was not raised"
+    except Exception as e:
+        assert "Invalid CycloneDX JSON" in str(e)
+
+
+def test_to_cyclonedx_with_component_metadata():
+    """Test that component metadata is preserved when converting to CycloneDX."""
+    from ..model.ossbom import OSSBOM
+    from ..model.component import Component
+    from ..model.dependency_env import DependencyEnv
+
+    sbom = OSSBOM(name="Metadata Test SBOM")
+    comp = Component(
+        name="meta-pkg",
+        version="1.0.0",
+        source={"pypi"},
+        env={DependencyEnv.DEV},
+        type="library",
+        metadata={"license": "MIT", "homepage": "https://example.com"}
+    )
+    sbom.add_components([comp])
+
+    cdx = SBOMConverterFactory.to_cyclonedx(sbom)
+
+    cdx_components = list(cdx.components)
+    assert len(cdx_components) == 1
+    props = {p.name: p.value for p in cdx_components[0].properties}
+    assert props.get("license") == "MIT"
+    assert props.get("homepage") == "https://example.com"

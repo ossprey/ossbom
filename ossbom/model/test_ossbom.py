@@ -198,3 +198,42 @@ def test_add_components_adds_and_merges():
     other = next(c for c in components if c.name == "other-pkg")
     assert other.source == {"maven"}
     assert DependencyEnv.DEV in other.env
+
+
+def test_ossbom_create():
+    """Test creating an OSSBOM using the create() classmethod."""
+    from datetime import timezone
+    env = Environment(github_repo="example/repo", branch="main")
+    created = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    sbom = OSSBOM.create(name="Created SBOM", env=env, created=created, creators=["Alice"], version="2.0")
+
+    assert sbom.name == "Created SBOM"
+    assert sbom.env.github_repo == "example/repo"
+    assert sbom.created == created
+    assert sbom.creators == ["Alice"]
+    assert sbom.version == "2.0"
+
+
+def test_update_environment():
+    """Test updating the environment of an OSSBOM."""
+    sbom = OSSBOM(name="Test SBOM")
+    new_env = Environment(github_repo="new/repo", branch="develop")
+
+    sbom.update_environment(new_env)
+
+    assert sbom.env.github_repo == "new/repo"
+    assert sbom.env.branch == "develop"
+
+
+def test_add_component_merges_existing():
+    """Test that add_component merges source and location for an already-added component."""
+    sbom = OSSBOM()
+    sbom.add_component(name="shared-pkg", version="1.0.0", source="pypi", type="library", location=["/src"])
+    sbom.add_component(name="shared-pkg", version="1.0.0", source="npm", type="library", location=["/lib"])
+
+    components = sbom.get_components()
+    assert len(components) == 1
+    assert "pypi" in components[0].source
+    assert "npm" in components[0].source
+    assert "/src" in components[0].location
+    assert "/lib" in components[0].location
