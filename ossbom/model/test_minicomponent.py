@@ -137,3 +137,50 @@ def test_minicomponent_from_component():
     assert mini_component.source == component.source
     assert mini_component.env == component.env
     assert mini_component.location == component.location
+
+
+def test_MiniComponent_get_type():
+    """Test that get_type() returns the component type."""
+    comp = MiniComponent.create(purl=PackageURL(name="example-pkg", version="1.0.0", type="npm"), env=DependencyEnv.DEV)
+
+    assert comp.get_type() == "npm"
+
+
+def test_MiniComponent_eq_with_non_minicomponent():
+    """Test that comparing a MiniComponent with a non-MiniComponent returns NotImplemented."""
+    comp = MiniComponent.create(purl=PackageURL(name="example-pkg", version="1.0.0", type="pypi"))
+
+    result = comp.__eq__("not-a-minicomponent")
+
+    assert result is NotImplemented
+
+
+def test_MiniComponent_to_dict_with_location():
+    """Test that to_dict() includes location when it is non-empty."""
+    comp = MiniComponent.create(
+        purl=PackageURL(name="example-pkg", version="1.0.0", type="pypi"),
+        source="pyreqs",
+        env=DependencyEnv.DEV,
+        location=["/src/requirements.txt"]
+    )
+
+    result = comp.to_dict()
+
+    assert result["location"] == ["/src/requirements.txt"]
+
+
+def test_MiniComponent_to_component():
+    """Test converting a MiniComponent back to a Component."""
+    mini = MiniComponent.create(
+        purl=PackageURL(name="example-pkg", version="1.0.0", type="pypi"),
+        source="pyreqs",
+        env=DependencyEnv.DEV
+    )
+
+    component = mini.to_component()
+
+    assert component.name == mini.name
+    assert component.version == mini.version
+    assert component.type == mini.type
+    assert component.source == mini.source
+    assert component.env == mini.env

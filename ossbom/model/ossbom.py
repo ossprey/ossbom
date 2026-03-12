@@ -41,7 +41,8 @@ class OSSBOM(Serializable):
         if key in self.components:
             self.components[key].add_source(source)
             self.components[key].add_env(env)
-            self.components[key].add_location(location)
+            for loc in location:
+                self.components[key].add_location(loc)
         else:
             self.components[key] = Component.create(name, version, source, env, type, location)
 

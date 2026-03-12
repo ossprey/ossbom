@@ -172,3 +172,29 @@ def test_get_hash():
     comp = Component.create(name="example-pkg", version="1.0.0", type="pypi", source="pyreqs", env=DependencyEnv.DEV)
 
     assert Component.get_hash("example-pkg", "1.0.0", "pypi") == hash(comp)
+
+
+def test_component_get_type():
+    """Test that get_type() returns the component type."""
+    comp = Component.create(name="example-pkg", version="1.0.0", type="npm", env=DependencyEnv.DEV)
+
+    assert comp.get_type() == "npm"
+
+
+def test_component_add_location():
+    """Test adding a location to a Component."""
+    comp = Component.create(name="example-pkg", version="1.0.0", source="pypi", env=DependencyEnv.DEV)
+
+    comp.add_location("/src/requirements.txt")
+    comp.add_location("/app/requirements.txt")
+
+    assert comp.location == ["/src/requirements.txt", "/app/requirements.txt"]
+
+
+def test_component_eq_with_non_component():
+    """Test that comparing a Component with a non-Component returns NotImplemented."""
+    comp = Component.create(name="example-pkg", version="1.0.0")
+
+    result = comp.__eq__("not-a-component")
+
+    assert result is NotImplemented
