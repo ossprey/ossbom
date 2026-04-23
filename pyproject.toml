@@ -12,7 +12,7 @@ poetry-plugin-export = "^1.9.0"
 packageurl-python = "^0.16.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.3"
+pytest = ">=8.3.3,<10.0.0"
 taskipy = "^1.14.0"
 twine = "^6.1.0"
 
