@@ -120,7 +120,7 @@ def create_example_cyclonedx_object() -> Bom:
         id="CVE-2023-1234",
         description="Example vulnerability.",
         ratings=[VulnerabilityRating(source=VulnerabilitySource(name="NVD"))],
-        references=[VulnerabilityReference(source=VulnerabilitySource(name="random", url="https://example.com/vuln"))],
+        references=[VulnerabilityReference(id="reference-1", source=VulnerabilitySource(name="random", url="https://example.com/vuln"))],
     )
 
     vuln_2 = Vulnerability(
