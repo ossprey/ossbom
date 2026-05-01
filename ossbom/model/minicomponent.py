@@ -73,7 +73,7 @@ class MiniComponent(Serializable):
         )
 
     def __repr__(self):
-        return f"pkg:{self.type}/{self.name}@{self.version} Source:({', '.join([s for s in self.source])}) Env:({', '.join([t.value for t in self.env])})"
+        return f"{str(self.get_purl())} Source:({', '.join([s for s in self.source])}) Env:({', '.join([t.value for t in self.env])})"
 
     def to_dict(self):
         data = {
@@ -98,7 +98,14 @@ class MiniComponent(Serializable):
         return cls(purl, source, env, location)
 
     @staticmethod
-    def get_hash(name, version, type, qualifiers: dict | None = None, subpath: str | None = None, namespace: str | None = None):
+    def get_hash(
+        name,
+        version,
+        type,
+        qualifiers: dict | None = None,
+        subpath: str | None = None,
+        namespace: str | None = None,
+    ):
         return hash(PackageURL(
             name=name,
             namespace=namespace,

@@ -147,3 +147,36 @@ def test_to_cyclonedx_with_component_metadata():
     props = {p.name: p.value for p in cdx_components[0].properties}
     assert props.get("license") == "MIT"
     assert props.get("homepage") == "https://example.com"
+
+
+def test_cyclonedx_roundtrip_preserves_qualifiers_subpath_namespace():
+    """Test that a PURL with path qualifier, subpath, and namespace survives a CycloneDX round-trip."""
+    from ..model.ossbom import OSSBOM
+    from ..model.component import Component
+    from ..model.dependency_env import DependencyEnv
+
+    sbom = OSSBOM(name="Purl Roundtrip Test")
+    comp = Component(
+        name="repo",
+        version="main",
+        source={"github"},
+        env={DependencyEnv.DEV},
+        type="github",
+        namespace="myorg",
+        qualifiers={"path": "examples/ex1"},
+        subpath="sub/dir",
+    )
+    sbom.add_components([comp])
+
+    # Round-trip via CycloneDX object
+    cdx = SBOMConverterFactory.to_cyclonedx(sbom)
+    restored_sbom = SBOMConverterFactory.from_cyclonedx(cdx)
+
+    components = list(restored_sbom.get_components())
+    assert len(components) == 1
+    restored = components[0]
+
+    assert restored.namespace == "myorg"
+    assert restored.qualifiers == {"path": "examples/ex1"}
+    assert restored.subpath == "sub/dir"
+    assert str(restored.get_purl()) == "pkg:github/myorg/repo@main?path=examples/ex1#sub/dir"

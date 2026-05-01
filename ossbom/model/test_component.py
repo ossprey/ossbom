@@ -231,3 +231,41 @@ def test_component_eq_distinguishes_path_qualifier():
 
     assert a != b
     assert hash(a) != hash(b)
+
+
+def test_component_namespace_in_purl():
+    """Test that namespace is included in the PURL for Component."""
+    comp = Component.create(
+        name="repo", version="1.0.0", type="github",
+        namespace="myorg",
+    )
+
+    assert str(comp.get_purl()) == "pkg:github/myorg/repo@1.0.0"
+
+
+def test_component_namespace_roundtrip_via_dict():
+    """Test that namespace survives to_dict/from_dict round-trip for Component."""
+    comp = Component.create(
+        name="repo", version="1.0.0", type="github",
+        namespace="myorg",
+        qualifiers={"path": "src/lib"},
+        subpath="sub/dir",
+    )
+
+    restored = Component.from_dict(comp.to_dict())
+
+    assert restored.namespace == "myorg"
+    assert restored.qualifiers == {"path": "src/lib"}
+    assert restored.subpath == "sub/dir"
+    assert str(restored.get_purl()) == "pkg:github/myorg/repo@1.0.0?path=src/lib#sub/dir"
+
+
+def test_component_eq_distinguishes_namespace():
+    """Test that Components with different namespaces are not equal."""
+    a = Component.create(name="repo", version="1.0.0", type="github",
+                         namespace="org-a")
+    b = Component.create(name="repo", version="1.0.0", type="github",
+                         namespace="org-b")
+
+    assert a != b
+    assert hash(a) != hash(b)
