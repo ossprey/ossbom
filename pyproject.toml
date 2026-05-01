@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ossbom"
-version = "1.0.12"
+version = "1.0.13"
 description = "Main public API"
 authors = ["dreadnought"]
 readme = "README.md"
@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 cyclonedx-python-lib = {extras = ["json-validation"], version = "^11.0.0"}
-poetry-plugin-export = "^1.9.0"
 packageurl-python = "^0.16.0"
 
 [tool.poetry.group.dev.dependencies]
