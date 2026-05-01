@@ -65,6 +65,9 @@ class CycloneDXConverter:
             env_values = next((prop.value for prop in component.properties if prop.name == "env"), None)
             env = set(DependencyEnv(e) for e in env_values.split(',')) if env_values else set()
             type = component.purl.type if component.purl else component.type.value
+            qualifiers = dict(component.purl.qualifiers) if component.purl and component.purl.qualifiers else {}
+            subpath = component.purl.subpath if component.purl else None
+            namespace = component.purl.namespace if component.purl else None
 
             components.append(
                 OSSBOM_Component(
@@ -72,7 +75,10 @@ class CycloneDXConverter:
                     version=component.version,
                     source=source,
                     env=env,
-                    type=type
+                    type=type,
+                    qualifiers=qualifiers,
+                    subpath=subpath,
+                    namespace=namespace,
                 )
             )
 

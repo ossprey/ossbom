@@ -15,11 +15,14 @@ class MiniComponent(Serializable):
                  ) -> None:
 
         self.name = purl.name
+        self.namespace = purl.namespace
         self.version = purl.version
         self.source = source if source else set()
         self.env = env if env else set()
         self.type = purl.type
         self.location = location if location else []
+        self.qualifiers = dict(purl.qualifiers) if purl.qualifiers else {}
+        self.subpath = purl.subpath
 
     @classmethod
     def create(cls,
@@ -32,18 +35,23 @@ class MiniComponent(Serializable):
         source = {source} if source else set()
         env = {DependencyEnv(env)} if env else set()
         location = location if location else []
-        
+
         return cls(purl, source, env, location)
 
     def __hash__(self):
-        # Hash based on the name and version concatenated
         return hash(self.get_purl().to_string())
 
     def __eq__(self, other):
-        # Equality based on name and version
         if not isinstance(other, MiniComponent):
             return NotImplemented
-        return self.name == other.name and self.version == other.version
+        return (
+            self.name == other.name
+            and self.version == other.version
+            and self.type == other.type
+            and self.namespace == other.namespace
+            and (self.qualifiers or {}) == (other.qualifiers or {})
+            and self.subpath == other.subpath
+        )
 
     def add_source(self, source):
         self.source.add(source)
@@ -55,10 +63,17 @@ class MiniComponent(Serializable):
         return self.type
 
     def get_purl(self):
-        return PackageURL(name=self.name, version=self.version, type=self.type)
+        return PackageURL(
+            name=self.name,
+            namespace=self.namespace,
+            version=self.version,
+            type=self.type,
+            qualifiers=self.qualifiers or None,
+            subpath=self.subpath,
+        )
 
     def __repr__(self):
-        return f"pkg:{self.type}/{self.name}@{self.version} Source:({', '.join([s for s in self.source])}) Env:({', '.join([t.value for t in self.env])})"
+        return f"{str(self.get_purl())} Source:({', '.join([s for s in self.source])}) Env:({', '.join([t.value for t in self.env])})"
 
     def to_dict(self):
         data = {
@@ -83,12 +98,48 @@ class MiniComponent(Serializable):
         return cls(purl, source, env, location)
 
     @staticmethod
-    def get_hash(name, version, type):
-        return hash(PackageURL(name=name, version=version, type=type).to_string())
+    def get_hash(
+        name,
+        version,
+        type,
+        qualifiers: dict | None = None,
+        subpath: str | None = None,
+        namespace: str | None = None,
+    ):
+        return hash(PackageURL(
+            name=name,
+            namespace=namespace,
+            version=version,
+            type=type,
+            qualifiers=qualifiers or None,
+            subpath=subpath,
+        ).to_string())
 
     @classmethod
     def from_component(cls, component):
-        return cls(PackageURL(name=component.name, version=component.version, type=component.type), component.source, component.env, component.location)
+        return cls(
+            PackageURL(
+                name=component.name,
+                namespace=getattr(component, "namespace", None),
+                version=component.version,
+                type=component.type,
+                qualifiers=getattr(component, "qualifiers", None) or None,
+                subpath=getattr(component, "subpath", None),
+            ),
+            component.source,
+            component.env,
+            component.location,
+        )
 
     def to_component(self):
-        return Component(name=self.name, version=self.version, type=self.type, source=self.source, env=self.env, location=self.location)
+        return Component(
+            name=self.name,
+            version=self.version,
+            type=self.type,
+            source=self.source,
+            env=self.env,
+            location=self.location,
+            qualifiers=self.qualifiers or None,
+            subpath=self.subpath,
+            namespace=self.namespace,
+        )
