@@ -184,3 +184,55 @@ def test_MiniComponent_to_component():
     assert component.type == mini.type
     assert component.source == mini.source
     assert component.env == mini.env
+
+
+def test_MiniComponent_preserves_path_qualifier():
+    purl = PackageURL.from_string("pkg:github/owner/repo@main?path=examples/ex1")
+    comp = MiniComponent(purl=purl)
+
+    assert comp.qualifiers == {"path": "examples/ex1"}
+    assert str(comp.get_purl()) == "pkg:github/owner/repo@main?path=examples/ex1"
+
+
+def test_MiniComponent_to_dict_emits_path_qualifier():
+    purl = PackageURL.from_string("pkg:github/owner/repo@main?path=examples/ex1")
+    comp = MiniComponent(purl=purl)
+
+    assert comp.to_dict()["purl"] == "pkg:github/owner/repo@main?path=examples/ex1"
+
+
+def test_MiniComponent_from_dict_roundtrips_path_qualifier():
+    data = {
+        "purl": "pkg:github/owner/repo@main?path=examples/ex1",
+        "source": [],
+        "env": [],
+    }
+    comp = MiniComponent.from_dict(data)
+
+    assert comp.qualifiers == {"path": "examples/ex1"}
+    assert comp.to_dict()["purl"] == data["purl"]
+
+
+def test_MiniComponent_eq_distinguishes_path_qualifier():
+    a = MiniComponent(purl=PackageURL.from_string("pkg:github/owner/repo@main?path=ex1"))
+    b = MiniComponent(purl=PackageURL.from_string("pkg:github/owner/repo@main?path=ex2"))
+
+    assert a != b
+    assert hash(a) != hash(b)
+
+
+def test_MiniComponent_from_component_preserves_path_qualifier():
+    comp = Component(name="repo", version="main", type="github",
+                     qualifiers={"path": "examples/ex1"})
+    mini = MiniComponent.from_component(comp)
+
+    assert mini.qualifiers == {"path": "examples/ex1"}
+    assert str(mini.get_purl()) == "pkg:github/repo@main?path=examples/ex1"
+
+
+def test_MiniComponent_to_component_preserves_path_qualifier():
+    mini = MiniComponent(purl=PackageURL.from_string("pkg:github/owner/repo@main?path=ex1"))
+    comp = mini.to_component()
+
+    assert comp.qualifiers == {"path": "ex1"}
+    assert str(comp.get_purl()) == "pkg:github/owner/repo@main?path=ex1"

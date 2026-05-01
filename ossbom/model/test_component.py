@@ -198,3 +198,36 @@ def test_component_eq_with_non_component():
     result = comp.__eq__("not-a-component")
 
     assert result is NotImplemented
+
+
+def test_component_preserves_path_qualifier():
+    comp = Component.create(
+        name="repo", version="main", type="github",
+        qualifiers={"path": "examples/ex1"},
+    )
+
+    assert str(comp.get_purl()) == "pkg:github/repo@main?path=examples/ex1"
+
+
+def test_component_path_qualifier_roundtrip_via_dict():
+    comp = Component.create(
+        name="repo", version="main", type="github",
+        qualifiers={"path": "examples/ex1"},
+        subpath="sub/dir",
+    )
+
+    restored = Component.from_dict(comp.to_dict())
+
+    assert restored.qualifiers == {"path": "examples/ex1"}
+    assert restored.subpath == "sub/dir"
+    assert str(restored.get_purl()) == "pkg:github/repo@main?path=examples/ex1#sub/dir"
+
+
+def test_component_eq_distinguishes_path_qualifier():
+    a = Component.create(name="repo", version="main", type="github",
+                         qualifiers={"path": "ex1"})
+    b = Component.create(name="repo", version="main", type="github",
+                         qualifiers={"path": "ex2"})
+
+    assert a != b
+    assert hash(a) != hash(b)
