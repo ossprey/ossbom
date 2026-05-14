@@ -46,3 +46,8 @@ classDiagram
     OSSBOM --> Environment : has
     OSSBOM --> "many" Component : contains
     OSSBOM --> "many" Vulnerability : contains
+```
+
+# Learn More
+
+More details about Ossprey can be found at [www.ossprey.com](www.ossprey.com)
