@@ -20,14 +20,35 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      packages: write
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Run python-release
-        uses: ossprey/cicd/python-release@v2
+        uses: ./.github/actions/python-release
         with:
           working-directory: .
           tag: ${{ github.event.inputs.tag }}
           test: ${{ github.event.inputs.test }}
+
+      - name: Publish to PyPI
+        if: ${{ github.event.inputs.test != 'true' }}
+        uses: ossprey/gh-action-pypi-publish@c491490ffbff6039ce817e25d6efa3bc36e90618
+        with:
+          use-canonical-image: true
+          packages-dir: dist/
+
+      - name: Publish to TestPyPI
+        if: ${{ github.event.inputs.test == 'true' }}
+        uses: ossprey/gh-action-pypi-publish@c491490ffbff6039ce817e25d6efa3bc36e90618
+        with:
+          use-canonical-image: true
+          packages-dir: dist/
+          repository-url: https://test.pypi.org/legacy/
 
   notify_on_failure:
     needs: [release]
