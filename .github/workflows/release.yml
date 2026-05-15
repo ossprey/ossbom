@@ -7,13 +7,20 @@ on:
         description: "Tag version (e.g., v1.0.0)"
         required: true
         type: string
-
-permissions:
-  contents: write
+      test:
+        description: "Publish to TestPyPI instead of PyPI"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
 
     steps:
       - name: Checkout code
@@ -21,54 +28,31 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate tag format
-        run: |
-          if [[ ! "${{ github.event.inputs.tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid tag format. Use semantic versioning (e.g., v1.0.0)."
-            exit 1
-          fi
-
-      - name: Validate tag matches pyproject.toml version
-        run: |
-          VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
-          EXPECTED_TAG="v$VERSION"
-          if [[ "$EXPECTED_TAG" != "${{ github.event.inputs.tag }}" ]]; then
-            echo "Tag does not match pyproject.toml version ($EXPECTED_TAG)"
-            exit 1
-          fi
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Run python-release
+        uses: ./.github/actions/python-release
         with:
-          python-version: 3.12
+          working-directory: .
+          tag: ${{ github.event.inputs.tag }}
+          test: ${{ github.event.inputs.test }}
 
-      - name: Install dependencies
-        run: |
-          pip install poetry
-          poetry install
+      - name: Publish to PyPI
+        if: ${{ github.event.inputs.test != 'true' }}
+        uses: ossprey/gh-action-pypi-publish@c491490ffbff6039ce817e25d6efa3bc36e90618
+        with:
+          use-canonical-image: true
+          packages-dir: dist/
 
-      - name: Run unit tests
-        run: |
-          poetry run pytest
-
-      - name: Tag and push
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git tag ${{ github.event.inputs.tag }}
-          git push origin ${{ github.event.inputs.tag }}
-
-      - name: Build and Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          poetry build
-          poetry run twine upload dist/*
+      - name: Publish to TestPyPI
+        if: ${{ github.event.inputs.test == 'true' }}
+        uses: ossprey/gh-action-pypi-publish@c491490ffbff6039ce817e25d6efa3bc36e90618
+        with:
+          use-canonical-image: true
+          packages-dir: dist/
+          repository-url: https://test.pypi.org/legacy/
 
   notify_on_failure:
     needs: [release]
-    if: failure() && github.ref == 'refs/heads/main'  # Only triggers if previous steps fail and we are on the main branch
+    if: failure() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
